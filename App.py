@@ -55,11 +55,14 @@ speech_js = """
         });
         
         recognition.addEventListener('result', (event) => {
-            const resultText = event.results[0][0].transcript;
+            const resultText = event.results.transcript;
             status.innerText = 'Captured: "' + resultText + '"';
-            window.parent.postMessage({
-                type: 'streamlit:setComponentValue',
-                value: resultText
+            
+            // Fix connection to talk directly to parent Streamlit interface
+            parent.postMessage({
+                stImageValue: resultText,
+                stValue: resultText,
+                type: 'streamlit:setComponentValue'
             }, '*');
         });
         
@@ -75,12 +78,15 @@ speech_js = """
 
 # Render speech component safely
 captured_speech = components.html(speech_js, height=90)
-if captured_speech:
+
+# Synchronize the audio value to session input storage values
+if captured_speech and captured_speech != st.session_state.voice_transcript:
     st.session_state.voice_transcript = captured_speech
+    st.rerun()
 
 raw_expenses = st.text_area(
     "Review or edit your expense text block here:",
-    value=st.session_state.voice_transcript if st.session_state.voice_transcript else "",
+    value=st.session_state.voice_transcript,
     placeholder="Example:\nspent 450 on swiggy last night\nrent was 12000\nnetflix 199\nauto ride 120\ngroceries at zepto 600 rupees",
     height=120
 )
@@ -107,7 +113,7 @@ if st.button("🚀 Analyze & Audit My Budget", use_container_width=True):
         st.write("* **Food & Dining / உணவு / भोजन:** Swiggy order — ₹450.00")
         st.write("* **Subscriptions / சந்தா / सब्सक्रिप्शन:** Netflix — ₹199.00")
         st.write("* **Transit / போக்குவரத்து / రవాణా:** Auto ride — ₹120.00")
-        st.write("* **Groceries / மளிகை / किराना:** Zepto delivery — ₹600.00")
+        st.write("* **Groceries / มளிகை / किराना:** Zepto delivery — ₹600.00")
         st.write(f"*Total Calculated Expenses:* **₹13,369.00**")
         
         st.write("### 🧠 2. Deep Financial Audit & Leak Detection (Optimized via Ultra)")
@@ -117,6 +123,11 @@ if st.button("🚀 Analyze & Audit My Budget", use_container_width=True):
         st.write("### 📱 3. Your Weekly SmartSpend Action Plan (Optimized via Super)")
         st.write("1. **The 10-Minute Checkout Buffer:** Delay order checkouts on dining apps by 10 minutes to bypass impulse purchases.")
         st.write("2. **Consolidate Delivery Bundles:** Bulk your cooking grocery lists into single orders to save on separate packing fees.")
+
+
+
+       
+           
 
 
     
