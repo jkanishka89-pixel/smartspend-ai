@@ -2,27 +2,20 @@ import streamlit as st
 import time
 import streamlit.components.v1 as components
 
-# 🎨 Clean and professional dashboard setup
+# Clean layout configuration
 st.set_page_config(
     page_title="SmartSpend AI India",
     page_icon="💖",
     layout="centered"
 )
 
-# Typography layout headers
-st.markdown("""
-    <style>
-    .big-title { font-size:36px !important; font-weight: 800; color: #FF4B4B; text-align: center; margin-bottom: 0px; }
-    .sub-title { font-size:16px !important; color: #888888; text-align: center; margin-bottom: 20px; }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown('<p class="big-title">❤️ SmartSpend AI India 💖</p>', unsafe_allowed_html=True)
-st.markdown('<p class="sub-title">Next-Gen Multi-Lingual Expense Intelligence for NVIDIA Nemotron & Nebius AI Cloud</p>', unsafe_allowed_html=True)
+# Using native Streamlit elements to avoid HTML formatting bugs
+st.title("❤️ SmartSpend AI India 💖")
+st.subheader("Next-Gen Multi-Lingual Expense Intelligence for NVIDIA Nemotron & Nebius AI Cloud")
 
 st.write("---")
 
-# 📊 User inputs (Rupees standard)
+# User inputs (Rupees standard)
 monthly_income = st.number_input("Monthly Net Income (₹):", min_value=0, value=40000, step=1000)
 savings_goal = st.number_input("Desired Monthly Savings Goal (₹):", min_value=0, value=8000, step=500)
 
@@ -34,7 +27,7 @@ st.write("### 📝 Input Your Messy Financial Notes / UPI Logs")
 if "voice_transcript" not in st.session_state:
     st.session_state.voice_transcript = ""
 
-# 🎙️ MULTILINGUAL AUTO-RECOGNITION SPEECH MIC WIDGET INJECTION
+# Multilingual voice typing script block
 st.write("🎙️ **Voice Typing Assistant**:")
 speech_js = """
 <div style="text-align: center; padding: 5px;">
@@ -52,7 +45,6 @@ speech_js = """
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         
-        // Setting lang to en-IN allows continuous mixed local speech language recognition
         recognition.lang = 'en-IN';
         recognition.interimResults = false;
         
@@ -81,7 +73,7 @@ speech_js = """
 </script>
 """
 
-# Render speech capture box safely
+# Render speech component safely
 captured_speech = components.html(speech_js, height=90)
 if captured_speech:
     st.session_state.voice_transcript = captured_speech
@@ -93,7 +85,7 @@ raw_expenses = st.text_area(
     height=120
 )
 
-# 🚀 Action execution button
+# Action execution trigger
 if st.button("🚀 Analyze & Audit My Budget", use_container_width=True):
     if not raw_expenses:
         st.error("Please add or speak some expenses to audit first! 🛑")
@@ -109,12 +101,12 @@ if st.button("🚀 Analyze & Audit My Budget", use_container_width=True):
         st.success("🧠 Your AI Forensic Audit Results")
         st.info("💡 **Hackathon Sandbox Mode Enabled**: The architecture designed to route parameters to `nvidia/nemotron-3-8b-ultra` is fully written inside the GitHub repository source code blocks.")
         
-        # 📋 Fully structured ledger breakdown matching the Indian economy targets
+        # Financial ledger breakdown panels
         st.write("### 📋 1. Parsed & Categorized Ledger (Optimized via Nano)")
         st.write("* **Housing / வாடகை / किराया:** Rent — ₹12,000.00")
         st.write("* **Food & Dining / உணவு / भोजन:** Swiggy order — ₹450.00")
         st.write("* **Subscriptions / சந்தா / सब्सक्रिप्शन:** Netflix — ₹199.00")
-        st.write("* **Transit / போக்குவரத்து / यातायात:** Auto ride — ₹120.00")
+        st.write("* **Transit / போக்குவரத்து / రవాణా:** Auto ride — ₹120.00")
         st.write("* **Groceries / மளிகை / किराना:** Zepto delivery — ₹600.00")
         st.write(f"*Total Calculated Expenses:* **₹13,369.00**")
         
@@ -125,4 +117,7 @@ if st.button("🚀 Analyze & Audit My Budget", use_container_width=True):
         st.write("### 📱 3. Your Weekly SmartSpend Action Plan (Optimized via Super)")
         st.write("1. **The 10-Minute Checkout Buffer:** Delay order checkouts on dining apps by 10 minutes to bypass impulse purchases.")
         st.write("2. **Consolidate Delivery Bundles:** Bulk your cooking grocery lists into single orders to save on separate packing fees.")
+
+
+    
 
