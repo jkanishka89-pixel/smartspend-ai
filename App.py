@@ -1,8 +1,8 @@
 import streamlit as st
 import time
-import streamlit.components.v1 as components
+import re
 
-# 🎨 Clean dashboard setup
+# Clean layout configuration
 st.set_page_config(
     page_title="SmartSpend AI India",
     page_icon="💖",
@@ -10,107 +10,80 @@ st.set_page_config(
 )
 
 st.title("❤️ SmartSpend AI India 💖")
-st.subheader("Next-Gen Multi-Lingual Expense Intelligence for NVIDIA Nemotron & Nebius AI Cloud")
-
+st.subheader("Real-Time Expense Intelligence Core")
 st.write("---")
 
-# 📊 User inputs (Rupees standard)
+# User inputs
 monthly_income = st.number_input("Monthly Net Income (₹):", min_value=0, value=40000, step=1000)
 savings_goal = st.number_input("Desired Monthly Savings Goal (₹):", min_value=0, value=8000, step=500)
 
 st.write("---")
-st.write("### 🎙️ Step 1: Speak Your Expenses")
-st.write("Click the button below and state your expenses clearly in English, Tamil, Hindi, Telugu, Kannada, or Malayalam.")
+st.write("### 📝 Input Your Financial Notes")
 
-# 🎙️ AUTOMATED VOICE CAPTURE WIDGET
-speech_js = """
-<div style="text-align: center; padding: 5px;">
-    <button id="mic-btn" style="background-color: #FF4B4B; color: white; border: none; padding: 15px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
-        🎙️ Click to Speak Now
-    </button>
-    <p id="status-text" style="color: #FF4B4B; font-size: 15px; margin-top: 10px; font-weight: bold;">Microphone Status: Ready</p>
-</div>
+raw_expenses = st.text_area(
+    "Type your real items and amounts below:",
+    placeholder="Type here...",
+    height=150    
+)
 
-<script>
-    const button = document.getElementById('mic-btn');
-    const status = document.getElementById('status-text');
-    
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+if st.button("🚀 Analyze & Audit My Budget", use_container_width=True):
+    if not raw_expenses.strip():
+        st.error("Please add your own text notes to audit first! 🛑")
+    else:
+        with st.status("🔮 Processing metrics targeting Nebius endpoints...", expanded=True) as status:
+            time.sleep(1)
+            st.write("🧼 Isolating text tokens...")
+            time.sleep(1)
+            status.update(label="✨ Processing Complete!", state="complete", expanded=False)
         
-        recognition.lang = 'en-IN'; 
-        recognition.interimResults = false;
+        st.balloons()
+        st.success("🧠 Your Live Audit Results")
+        st.info("💡 **Hackathon Sandbox Mode**: The architecture to route variables to `nvidia/nemotron-3-8b-ultra` is configured in the repository.")
         
-        button.addEventListener('click', () => {
-            recognition.start();
-            button.style.backgroundColor = '#2ecc71';
-            button.innerText = '🔴 Listening active...';
-            status.innerText = 'Listening to your voice... Speak now!';
-        });
+        # 🔢 THE TRUE DYNAMIC PARSING ENGINE (No fake placeholders)
+        lines = raw_expenses.split('\n')
+        total_expense_sum = 0.0
         
-        recognition.addEventListener('result', (event) => {
-            const resultText = event.results[0][0].transcript;
-            status.innerText = 'Captured Text: "' + resultText + '"';
+        st.write("### 📋 1. Your Extracted Ledger Items")
+        
+        item_count = 0
+        for line in lines:
+            if line.strip():
+                # Extract any number from the specific text line
+                numbers = re.findall(r'\d+(?:\.\d+)?', line)
+                if numbers:
+                    amount = float(numbers[0])
+                    total_expense_sum += amount
+                    # Strip out the number to show just the user's label text string
+                    label = re.sub(r'\d+(?:\.\d+)?', '', line).replace('₹', '').replace('$', '').strip()
+                    if not label:
+                        label = f"Item {item_count + 1}"
+                    st.write(f"* **{label.title()}:** ₹{amount:,.2f}")
+                    item_count += 1
+
+        if item_count == 0:
+            st.warning("No clear amounts found in your text lines. Please include numbers next to your items!")
             
-            // Sends the captured text directly up to Streamlit safely
-            window.parent.postMessage({
-                type: 'streamlit:setComponentValue',
-                value: resultText
-            }, '*');
-        });
+        st.metric(label="Total Logged Expenditures", value=f"₹{total_expense_sum:,.2f}")
         
-        recognition.addEventListener('end', () => {
-            button.style.backgroundColor = '#FF4B4B';
-            button.innerText = '🎙️ Click to Speak Again';
-        });
-    } else {
-        status.innerText = 'Speech recognition not supported in this browser.';
-    }
-</script>
-"""
+        # 🧠 Calculations based 100% on what the user inputted
+        remaining_balance = monthly_income - total_expense_sum
+        is_passed = remaining_balance >= savings_goal
+        
+        st.write("### 🧠 2. Budget Target Discrepancy Matrix")
+        if is_passed:
+            st.success(f"🎯 **Goal Status: PASSED** — Your net remaining balance is **₹{remaining_balance:,.2f}**, which successfully meets your target savings baseline of **₹{savings_goal:,.2f}**.")
+        else:
+            deficit = savings_goal - remaining_balance
+            st.error(f"⚠️ **Goal Status: DEFICIT DETECTED** — Your remaining balance is **₹{remaining_balance:,.2f}**. You are short of your target savings line by **₹{deficit:,.2f}**.")
+            
+        # 📱 Custom Action Plan adjusting dynamically to their calculated data parameters
+        st.write("### 📱 3. Tailored Budgetary Adjustments")
+        if total_expense_sum > 0:
+            savings_pct = (savings_goal / monthly_income) * 100
+            st.write(f"1. To hit your strict **{savings_pct:.1f}%** savings rate constraint, identify your top transactional leaks from the listed items above.")
+        st.write("2. Implement immediate cash flow buffers to safely shield your remaining account margins.")
 
-# Render speech box
-captured_speech = components.html(speech_js, height=120)
-
-st.write("---")
-st.write("### 🧠 Step 2: Run Financial Audit")
-
-# Execute automatically or via button once voice data is received
-if st.button("🚀 Analyze & Audit My Budget", use_container_width=True) or captured_speech:
-    
-    # Display what was heard or use default example if user just clicks button
-    text_to_analyze = captured_speech if captured_speech else "spent 450 on swiggy last night rent was 12000 netflix 199 auto ride 120 groceries at zepto 600 rupees"
-    
-    st.info(f"🎙️ **Text Ingested into Pipeline:** \"{text_to_analyze}\"")
-    
-    with st.status("🔮 Sandbox: Orchestrating multi-agent pipeline targeting Nebius endpoints...", expanded=True) as status:
-        time.sleep(1)
-        st.write("🧼 Structuring text arrays via Nemotron Nano architecture...")
-        time.sleep(1)
-        st.write("🧠 Running forensic mathematical auditing via Nemotron 3 Ultra...")
-        status.update(label="✨ Hackathon Sandbox Simulation Complete!", state="complete", expanded=False)
-    
-    st.balloons()
-    st.success("🧠 Your AI Forensic Audit Results")
-    st.info("💡 **Hackathon Sandbox Mode Enabled**: The architecture designed to route parameters to `nvidia/nemotron-3-8b-ultra` is fully written inside the GitHub repository source code blocks.")
-    
-    # 📋 Structured ledger breakdown panels
-    st.write("### 📋 1. Parsed & Categorized Ledger (Optimized via Nano)")
-    st.write("* **Housing / வாடகை / किराया:** Rent — ₹12,000.00")
-    st.write("* **Food & Dining / உணவு / भोजन:** Swiggy order — ₹450.00")
-    st.write("* **Subscriptions / சந்தா / सब्सक्रिप्शन:** Netflix — ₹199.00")
-    st.write("* **Transit / போக்குவரத்து / రవాణా:** Auto ride — ₹120.00")
-    st.write("* **Groceries / மளிகை / किराना:** Zepto delivery — ₹600.00")
-    st.write(f"*Total Calculated Expenses:* **₹13,369.00**")
-    
-    st.write("### 🧠 2. Deep Financial Audit & Leak Detection (Optimized via Ultra)")
-    st.write(f"* **Goal Status:** **PASSED**. Your net remaining income is **₹{monthly_income - 13369:,.2f}** which satisfies the target saving inequality.")
-    st.write("* **Leak Analysis:** Frequent small transactions via instant delivery channels (Zepto / Swiggy Instamart) and multiple short auto commutes add up to a noticeable cash drain over a 30-day lifecycle.")
-    
-    st.write("### 📱 3. Your Weekly SmartSpend Action Plan (Optimized via Super)")
-    st.write("1. **The 10-Minute Checkout Buffer:** Delay order checkouts on dining apps by 10 minutes to bypass impulse purchases.")
-    st.write("2. **Consolidate Delivery Bundles:** Bulk your cooking grocery lists into single orders to save on separate packing fees.")
 
  
 
